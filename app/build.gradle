@@ -5,6 +5,13 @@ apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'com.chaquo.python'
 apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 
+// Release versioning: CI (.github/workflows/release.yml) passes
+// -PforgeVersionName / -PforgeVersionCode so every distributed APK gets a
+// unique, monotonically increasing versionCode (workflow run number) and a
+// tag-derived versionName. Local builds fall back to the defaults below.
+def forgeVersionName = (findProperty('forgeVersionName') ?: '1.0.0-alpha') as String
+def forgeVersionCode = (findProperty('forgeVersionCode') ?: '1') as Integer
+
 android {
     namespace 'com.forge.os'
     compileSdk 34
@@ -13,8 +20,8 @@ android {
         applicationId "com.forge.os"
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "1.0.0-alpha"
+        versionCode forgeVersionCode
+        versionName forgeVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

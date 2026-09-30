@@ -37,26 +37,88 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
-
-      - name: Get version from tag
-        id: get_version
+      # ---------------------------------------------------------------------
+      # Signing. The APK must be signed with the SAME key for every release;
+      # otherwise Android refuses to update an existing install (the
+      # "must uninstall first" problem). The keystore comes from repo
+      # secrets. One-time setup: see RELEASE_SIGNING_SETUP.md (repo root).
+      # ---------------------------------------------------------------------
+      - name: Decode release keystore
+        env:
+          FORGE_KEYSTORE_BASE64: ${{ secrets.FORGE_KEYSTORE_BASE64 }}
         run: |
-          if [ "${{ github.ref_type }}" == "tag" ]; then
-            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          else
-            echo "VERSION=manual-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+          if [ -z "$FORGE_KEYSTORE_BASE64" ]; then
+            echo "::error::Missing secret FORGE_KEYSTORE_BASE64 - see RELEASE_SIGNING_SETUP.md for one-time setup"
+            exit 1
           fi
+          echo "$FORGE_KEYSTORE_BASE64" | base64 --decode > forge-release.jks
+          ls -l forge-release.jks
+
+      - name: Write keystore.properties
+        env:
+          FORGE_KEYSTORE_PASSWORD: ${{ secrets.FORGE_KEYSTORE_PASSWORD }}
+          FORGE_KEY_ALIAS: ${{ secrets.FORGE_KEY_ALIAS }}
+        run: |
+          {
+            echo "storeFile=../forge-release.jks"
+            echo "storePassword=$FORGE_KEYSTORE_PASSWORD"
+            echo "keyAlias=$FORGE_KEY_ALIAS"
+            echo "keyPassword=$FORGE_KEYSTORE_PASSWORD"
+          } > app/keystore.properties
+
+      # ---------------------------------------------------------------------
+      # Versioning. versionCode = workflow run number (always increases, so
+      # Android treats every release as an upgrade); versionName from tag.
+      # ---------------------------------------------------------------------
+      - name: Derive version
+        id: ver
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            NAME="${TAG#v}"
+          else
+            TAG="manual-$(date +'%Y%m%d-%H%M%S')"
+            NAME="0.0.${GITHUB_RUN_NUMBER}-manual"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed release APK
+        env:
+          VERSION_NAME: ${{ steps.ver.outputs.name }}
+        run: >-
+          ./gradlew :app:assembleRelease
+          -PforgeVersionName="$VERSION_NAME"
+          -PforgeVersionCode="${GITHUB_RUN_NUMBER}"
+          --stacktrace --no-daemon
+
+      - name: Verify APK signature
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk)
+          echo "Built: $APK"
+          APKSIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          if [ -x "$APKSIGNER" ]; then
+            "$APKSIGNER" verify --print-certs "$APK"
+          else
+            keytool -printcert -jarfile "$APK"
+          fi
+
+      - name: Rename APK
+        env:
+          VERSION_NAME: ${{ steps.ver.outputs.name }}
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk)
+          mv "$APK" "ForgeOS-$VERSION_NAME.apk"
+          ls -l ForgeOS-*.apk
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          name: Forge OS ${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Forge OS ${{ steps.ver.outputs.tag }}
           draft: false
           prerelease: false
           files: |
-            app/build/outputs/apk/debug/*.apk
+            ForgeOS-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

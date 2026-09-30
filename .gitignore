@@ -27,3 +27,10 @@ Thumbs.db
 # Python cache (Chaquopy)
 __pycache__/
 *.pyc
+
+# Release signing material - generated locally, never commit
+app/keystore.properties
+forge-release.jks
+forge-release.jks.base64.txt
+forge-release-password.txt
+RELEASE_SIGNING_SETUP.md

@@ -1,11 +1,38 @@
 # Forge OS — Release Guide
 
-This document describes how to produce a signed release build of Forge OS and
-publish it to the Google Play Store.
+This document describes how to produce a signed release build of Forge OS:
+via GitHub Actions (the current distribution path: signed APKs attached to
+GitHub Releases) or locally. Play Store listing material is kept under
+`fastlane/` for when it is needed.
 
 ---
 
 ## 1. One-time setup
+
+### 1.0 CI releases (the normal path)
+
+Distributed APKs are built by `.github/workflows/release.yml` and must be
+signed with the SAME key every time. If the key changes, Android refuses
+to update an existing install (the "must uninstall first" problem).
+
+One-time setup (already done on the dev machine - see
+`RELEASE_SIGNING_SETUP.md` in the repo root; it is gitignored and holds
+the passwords):
+
+1. A release keystore (`forge-release.jks`, alias `forge`) was generated.
+2. These GitHub repository secrets were added (Settings -> Secrets and
+   variables -> Actions -> New repository secret):
+   - `FORGE_KEYSTORE_BASE64` - contents of `forge-release.jks.base64.txt`
+   - `FORGE_KEYSTORE_PASSWORD` - from `RELEASE_SIGNING_SETUP.md`
+   - `FORGE_KEY_ALIAS` - `forge`
+3. To cut a release: `git tag v1.0.1 && git push origin v1.0.1`. The
+   workflow builds a signed `ForgeOS-<version>.apk`, verifies the
+   signature, and attaches it to a GitHub Release. `versionCode` is the
+   workflow run number (always increases); `versionName` comes from the
+   tag.
+
+Keep the keystore and its password safe forever, never commit them, and
+never install debug builds over release installs.
 
 ### 1.1 Create a release keystore
 
@@ -86,7 +113,7 @@ You can drop these into `fastlane/metadata/android/en-US/images/` and use
 
 ## 5. Release checklist
 
-- [ ] `versionCode` and `versionName` bumped in `app/build.gradle`
+- [ ] Version handled (CI: automatic from tag + run number; local builds: bump `versionCode`/`versionName` in `app/build.gradle`)
 - [ ] All `// TODO(release)` comments resolved
 - [ ] Crash-free on a fresh install (no API key) → onboarding flow shown
 - [ ] Crash-free with API key set → chat works
