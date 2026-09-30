@@ -60,16 +60,38 @@
     public <init>(android.content.Context, androidx.work.WorkerParameters);
 }
 
-# JGit (git_* tools, snapshots). Transport and crypto hooks are resolved
-# reflectively, so the broad public-keep rule doesn't cover package-private
-# extension points. JGit also probes for optional transports and SLF4J
-# bindings that this app never bundles -- without these -dontwarn rules R8
-# aborts the release build with "Missing classes detected while running R8".
+# ── R8 missing-class suppressions ─────────────────────────────────────
+# R8 treats unresolved references as a hard error and aborts
+# assembleRelease. Every class below is reachable only from code paths that
+# cannot execute on Android, so suppressing is safe and costs no behaviour.
+#
+# JGit (git_* tools, snapshots):
+#   javax.management / java.lang.management -> JMX monitoring hooks
+#     (WindowCache.publishMBeanIfNeeded); JMX is never enabled on Android.
+#   org.ietf.jgss.* -> Kerberos GSS-API, reachable only via the HTTP
+#     "Negotiate" auth method, which Forge never enables.
+#   Transport/crypto hooks resolve reflectively, so JGit needs a keep rule;
+#   the broad public-keep rule does not cover package-private extension points.
 -keep class org.eclipse.jgit.** { *; }
 -dontwarn org.eclipse.jgit.**
+-dontwarn javax.management.**
+-dontwarn java.lang.management.**
+-dontwarn org.ietf.jgss.**
+# Optional SSH transports / SLF4J binding JGit probes for but we never bundle.
 -dontwarn org.apache.sshd.**
 -dontwarn com.jcraft.jsch.**
 -dontwarn org.slf4j.impl.**
+
+# Tink (transitively via androidx.security:security-crypto, used by
+# SecureKeyStore and BackupManager for EncryptedFile/EncryptedSharedPreferences):
+#   com.google.api.client.http.* -> optional transport used solely by
+#     KeysDownloader.fetchAndCacheData() to pull remote keysets. We never call
+#     KeysDownloader; all keysets are local.
+#   com.google.errorprone.annotations.* -> compile-time annotations, absent at runtime.
+#   org.joda.time.* -> touched only by KeysDownloader.
+-dontwarn com.google.api.client.http.**
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn org.joda.time.**
 
 # Strip verbose debug logs in release
 -assumenosideeffects class timber.log.Timber {
