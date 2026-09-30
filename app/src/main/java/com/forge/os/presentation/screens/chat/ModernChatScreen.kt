@@ -1306,7 +1306,7 @@ private fun ModernUserBubble(
                                         modifier = Modifier.weight(1f).height(200.dp),
                                         contentScale = ContentScale.Crop,
                                     )
-                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                         images.drop(1).forEach { att ->
                                             coil.compose.AsyncImage(
                                                 model = att.filePath,
@@ -1935,7 +1935,7 @@ private fun AudioPlayerCard(file: java.io.File, context: android.content.Context
                     modifier = Modifier.size(20.dp),
                 )
             }
-            Column(Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     file.name,
                     color = ModernTextPrimary,
@@ -1985,7 +1985,7 @@ private fun FileCard(file: java.io.File, mime: String, context: android.content.
                     fontWeight = FontWeight.Bold,
                 )
             }
-            Column(Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     file.name,
                     color = ModernTextPrimary,
@@ -2717,7 +2717,7 @@ private fun WorkspaceFilePickerSheet(
                                 modifier = Modifier.size(22.dp),
                             )
                             Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(entry.name, color = forgePalette.textPrimary, fontSize = 14.sp, maxLines = 1)
                                 if (!entry.isDirectory) {
                                     Text(
@@ -2804,7 +2804,7 @@ private fun BrowserTabPickerSheet(
                                 modifier = Modifier.size(22.dp),
                             )
                             Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     tab.title.ifBlank { "Untitled" },
                                     color = forgePalette.textPrimary, fontSize = 14.sp, maxLines = 1,
@@ -2908,7 +2908,7 @@ private fun ConversationPickerSheet(
                         ) {
                             Icon(Icons.Outlined.ChatBubbleOutline, null, tint = forgePalette.textMuted, modifier = Modifier.size(22.dp))
                             Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(conv.title, color = forgePalette.textPrimary, fontSize = 14.sp, maxLines = 1)
                                 Text(
                                     "${conv.messages.size} messages · ${java.text.SimpleDateFormat("MMM d", java.util.Locale.getDefault()).format(java.util.Date(conv.updatedAt))}",
