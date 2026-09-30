@@ -60,6 +60,17 @@
     public <init>(android.content.Context, androidx.work.WorkerParameters);
 }
 
+# JGit (git_* tools, snapshots). Transport and crypto hooks are resolved
+# reflectively, so the broad public-keep rule doesn't cover package-private
+# extension points. JGit also probes for optional transports and SLF4J
+# bindings that this app never bundles -- without these -dontwarn rules R8
+# aborts the release build with "Missing classes detected while running R8".
+-keep class org.eclipse.jgit.** { *; }
+-dontwarn org.eclipse.jgit.**
+-dontwarn org.apache.sshd.**
+-dontwarn com.jcraft.jsch.**
+-dontwarn org.slf4j.impl.**
+
 # Strip verbose debug logs in release
 -assumenosideeffects class timber.log.Timber {
     public static *** v(...);
