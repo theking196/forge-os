@@ -6,6 +6,13 @@ on:
       - 'v*'  # Triggers on version tags like v1.0.0, v1.0.0-alpha, etc.
   workflow_dispatch:  # Allows manual trigger
 
+# softprops/action-gh-release publishes the Release through GITHUB_TOKEN, which
+# needs contents:write. This repo's default workflow permission is "read", so
+# without this block the step fails with HTTP 403 -- and it fails LAST, after
+# the APK has already been built, signed and verified.
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build and Release APK
