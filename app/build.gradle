@@ -214,6 +214,11 @@ dependencies {
     // Image loading for the file viewer (Phase C)
     implementation 'io.coil-kt:coil-compose:2.5.0'
 
+    // QR rendering for the desktop-pairing screen. 'core' is the pure-Java encoder
+    // only (no camera, no UI) so it stays small - we rasterise the matrix ourselves
+    // rather than pulling in the full zxing android module.
+    implementation 'com.google.zxing:core:3.5.3'
+
     // Logging
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
