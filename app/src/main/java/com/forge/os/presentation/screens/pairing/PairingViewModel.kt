@@ -26,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PairingViewModel @Inject constructor(
     private val pairingService: PairingService,
-    private val addressResolver: LanAddressResolver = LanAddressResolver(),
+    private val addressResolver: LanAddressResolver,
 ) : ViewModel() {
 
     /** What the screen is currently doing. */
@@ -145,7 +145,7 @@ class PairingViewModel @Inject constructor(
  * real network interfaces. Mirrors the approach used by the static file server:
  * prefer an up, non-loopback, non-link-local IPv4 interface.
  */
-open class LanAddressResolver {
+open class LanAddressResolver @Inject constructor() {
     open fun lanAddress(): String? = runCatching {
         NetworkInterface.getNetworkInterfaces().toList()
             .filter { runCatching { it.isUp && !it.isLoopback }.getOrDefault(false) }
