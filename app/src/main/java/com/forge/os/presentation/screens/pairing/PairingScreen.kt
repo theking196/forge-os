@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -74,7 +72,7 @@ fun PairingPage(
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            "Scan this from Forge Desktop, or type the code by hand",
+            "Read the code below and type it into Forge Desktop",
             color = forgePalette.textMuted,
             fontSize = 13.sp,
             textAlign = TextAlign.Center,
@@ -132,27 +130,43 @@ private fun ErrorBody(message: String, onRetry: () -> Unit) {
 @Composable
 
 private fun ActiveBody(state: PairingViewModel.PairingUiState) {
-    // ── QR ──────────────────────────────────────────────────────────────
-    val qr = state.qrContent
-    if (qr != null) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            modifier = Modifier.fillMaxWidth(0.72f).aspectRatio(1f),
+// ── How to pair ──────────────────────────────────────────────────
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = forgePalette.surface2,
+        border = BorderStroke(1.dp, forgePalette.borderSoft),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            PairingQr.QrImage(
-                payload = qr,
-                modifier = Modifier.fillMaxSize().padding(10.dp),
+            Icon(
+                Icons.Outlined.DesktopMac,
+                contentDescription = null,
+                tint = forgePalette.orange,
+                modifier = Modifier.size(20.dp),
             )
-        }
-    } else {
-        Box(
-            Modifier.fillMaxWidth(0.72f).aspectRatio(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgressIndicator(color = forgePalette.orange)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "On your desktop",
+                    color = forgePalette.textPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    "Open Forge Desktop, choose Pair New Device, and enter the code below.",
+                    color = forgePalette.textMuted,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                )
+            }
         }
     }
+
+    Spacer(Modifier.height(18.dp))
 
     Spacer(Modifier.height(18.dp))
 

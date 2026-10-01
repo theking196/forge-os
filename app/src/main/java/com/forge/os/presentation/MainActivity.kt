@@ -359,6 +359,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("alarms")   { AlarmsScreen(onBack = { navController.popBackStack() }) }
                         composable("server")   { ServerScreen(onBack = { navController.popBackStack() }) }
+                        composable("pairing")  { com.forge.os.presentation.screens.pairing.PairingPage() }
                         composable("doctor")   { DoctorScreen(onBack = { navController.popBackStack() }) }
                         composable("findMyPhone") { FindMyPhoneScreen(navController) }
                         composable("antiTheft") { AntiTheftScreen(onBack = { navController.popBackStack() }) }

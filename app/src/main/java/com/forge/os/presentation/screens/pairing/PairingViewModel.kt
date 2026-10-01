@@ -49,13 +49,6 @@ class PairingViewModel @Inject constructor(
         /** Seconds until the code expires; counts down while visible. */
         val secondsRemaining: Int = 0,
     ) {
-        /** The URI encoded into the QR, or null before a code exists. */
-        val qrContent: String?
-            get() = if (code.isNotBlank() && host.isNotBlank()) {
-                PairingPayload(host, port, code).toUri()
-            } else {
-                null
-            }
     }
 
     private val _state = MutableStateFlow(PairingUiState())

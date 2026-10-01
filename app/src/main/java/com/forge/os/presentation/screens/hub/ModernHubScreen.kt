@@ -73,6 +73,7 @@ private val MODULES = listOf(
     ModuleTile("browser", Icons.Outlined.Language, "Browser", "Agent-controllable web", "Tools", "browser web"),
     ModuleTile("alarms", Icons.Outlined.Alarm, "Alarms", "Schedule exact alarms", "Tools", "alarm timer"),
     ModuleTile("server", Icons.Outlined.Storage, "Server", "Local HTTP API", "Tools", "server http api"),
+    ModuleTile("pairing", Icons.Outlined.Devices, "Pair Desktop", "Show a pairing code", "Tools", "pair desktop pairing code qr"),
 
     // Security
     ModuleTile("findMyPhone", Icons.Outlined.PhonePaused, "Find My Phone", "Locate your lost phone", "Security", "find my phone lost locate ring"),
