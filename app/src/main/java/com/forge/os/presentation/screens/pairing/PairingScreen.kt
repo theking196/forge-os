@@ -88,6 +88,7 @@ fun PairingPage(
             is PairingViewModel.Phase.Paired -> PairedBody()
         }
     }
+}
 
 @Composable
 private fun ResolvingBody() {
