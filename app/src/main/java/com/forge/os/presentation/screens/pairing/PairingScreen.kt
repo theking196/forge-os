@@ -86,6 +86,9 @@ fun PairingPage(
             is PairingViewModel.Phase.Error -> ErrorBody(phase.message) { viewModel.startPairing() }
             is PairingViewModel.Phase.AwaitingDesktop -> ActiveBody(state)
             is PairingViewModel.Phase.Paired -> PairedBody()
+        }
+    }
+
 @Composable
 private fun ResolvingBody() {
     Column(
@@ -125,9 +128,8 @@ private fun ErrorBody(message: String, onRetry: () -> Unit) {
         }
     }
 }
-        }
-    }
 @Composable
+
 private fun ActiveBody(state: PairingViewModel.PairingUiState) {
     // ── QR ──────────────────────────────────────────────────────────────
     val qr = state.qrContent
@@ -241,7 +243,6 @@ private fun ActiveBody(state: PairingViewModel.PairingUiState) {
             fontSize = 11.sp,
         )
     }
-}
 }
 
 
