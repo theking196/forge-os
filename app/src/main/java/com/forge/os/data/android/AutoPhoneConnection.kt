@@ -116,6 +116,32 @@ class AutoPhoneConnection @Inject constructor(
     fun replyToNotification(key: String, text: String) = call { it.replyToNotification(key, text) }
     fun isNotificationListenerActive(): Boolean = runCatching { ensureConnected()?.isNotificationListenerActive() ?: false }.getOrElse { false }
 
+
+    // OCR. These need MediaProjection consent on the AutoPhone side; the
+    // returned JSON carries an explicit error when it is missing.
+
+    fun ocrReadScreen()              = call { it.ocrReadScreen() }
+    fun ocrFindText(query: String)   = call { it.ocrFindText(query) }
+    fun ocrFindAllText(query: String) = call { it.ocrFindAllText(query) }
+    fun ocrTapText(query: String): Boolean =
+        runCatching { ensureConnected()?.ocrTapText(query) ?: false }.getOrElse { false }
+
+    // Icon templates. register/unregister/list need only the accessibility
+    // service; finding on screen additionally needs capture consent.
+
+    fun registerIcon(name: String, base64Image: String) = call { it.registerIcon(name, base64Image) }
+    fun unregisterIcon(name: String)               = call { it.unregisterIcon(name) }
+    fun listIcons()                                 = call { it.listIcons() }
+    fun findIcon(name: String, threshold: Double)   = call { it.findIcon(name, threshold) }
+    fun findAllIcons(name: String, threshold: Double, maxMatches: Int) =
+        call { it.findAllIcons(name, threshold, maxMatches) }
+    fun isIconVisible(name: String, threshold: Double): Boolean =
+        runCatching { ensureConnected()?.isIconVisible(name, threshold) ?: false }.getOrElse { false }
+
+    // Current app + screen type, from the accessibility tree.
+
+    fun describeContext()            = call { it.describeContext() }
+
     // ── Schedule lifecycle ────────────────────────────────────────────────────
 
     fun notifyScheduleStarted(scheduleId: String, planSummary: String) {
