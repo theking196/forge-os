@@ -98,7 +98,8 @@ class ForgeHttpServer @Inject constructor(
 
     /** In-memory chat histories keyed by session id (desktop companion support). */
     private val chatSessions = ConcurrentHashMap<String, MutableList<ApiMessage>>()
-    
+    private val chatSessionsMutex = Mutex()
+
     /** In-memory desktop tokens keyed by desktop_id */
     private val desktopTokens = ConcurrentHashMap<String, String>()
 
@@ -701,7 +702,7 @@ class ForgeHttpServer @Inject constructor(
                         val history = chatSessions.getOrPut(sessionId) { mutableListOf() }
                         // Serialize turns within a session — interleaved agent
                         // runs would corrupt the shared history.
-                        val reply = synchronized(history) { runBlocking { runChatTurn(message, history) } }
+                        val reply = chatSessionsMutex.withLock { runChatTurn(message, history) }
                         buildJsonObject {
                             put("ok", true)
                             put("reply", reply)
