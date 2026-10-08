@@ -703,7 +703,7 @@ class ForgeHttpServer @Inject constructor(
                         val history = chatSessions.getOrPut(sessionId) { mutableListOf() }
                         // Serialize turns within a session — interleaved agent
                         // runs would corrupt the shared history.
-                        val reply = chatSessionsMutex.withLock { runChatTurn(message, history) }
+                        val reply = runBlocking { chatSessionsMutex.withLock { runChatTurn(message, history) } }
                         buildJsonObject {
                             put("ok", true)
                             put("reply", reply)
